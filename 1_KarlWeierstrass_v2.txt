@@ -1,0 +1,881 @@
+KarlWeierstrass algorithm for Loto 7/39 — v2
+============================================================
+
+
+KORAK 1: Weierstrass-ova funkcija nad svih do sad 4624 izvucenih kombinacija
+
+  CSV izvucenih:        /data/loto7_4624_k43.csv
+  Prostor svih 39C7:    /data/kombinacije_39C7.csv
+  Ucitano izvlacenja:   4624
+  C(39,7):              15,380,937
+  PNG:                  /1_KarlWeierstrass_v2_1.png
+
+Definicija krive:
+  f(t) = lex-indeks izvucene kombinacije u skupu svih 39C7
+  t    = 1..N (redni broj izvlacenja)
+
+Prvih 10 tacaka:
+  t=1    combo=(5, 14, 15, 17, 28, 30, 34)  lex=9774196
+  t=2    combo=(2, 3, 13, 18, 19, 23, 37)  lex=3064646
+  t=3    combo=(13, 17, 18, 20, 21, 26, 39)  lex=14623405
+  t=4    combo=(17, 20, 23, 26, 35, 36, 38)  lex=15178170
+  t=5    combo=(3, 4, 8, 11, 29, 32, 37)  lex=5219568
+  t=6    combo=(6, 7, 16, 24, 34, 38, 39)  lex=10167673
+  t=7    combo=(2, 3, 7, 8, 20, 23, 26)  lex=2903730
+  t=8    combo=(5, 9, 12, 28, 32, 36, 38)  lex=9326447
+  t=9    combo=(1, 5, 19, 24, 26, 30, 34)  lex=1398581
+  t=10   combo=(2, 12, 16, 20, 26, 28, 36)  lex=4751586
+
+Statistike krive:
+  min  = 6,906
+  max  = 15,380,242
+  mean = 7,838,790
+  std  = 4,464,599
+
+Ukupno vreme: 0:00:03 (3.4 s)
+
+
+============================================================
+KORAK 2a: Aparat — Brownovo kretanje
+============================================================
+
+  PNG:                  /1_KarlWeierstrass_v2_2a.png
+
+Inkrementi dX(t) = f(t+1) - f(t):
+  N           = 4623
+  mean        = -2,003.26
+  std         = 6,276,909.99
+  1. polovina: mean=-2,315.10  std=6,172,737.30
+  2. polovina: mean=-1,691.56  std=6,379,337.82
+
+Normalnost inkremenata:
+  Shapiro-Wilk (n=4623):  stat=0.9924  p=0.0000
+     NIJE normalno (p<=0.05)
+  Anderson-Darling:  stat=4.702  crit(5%)=0.786
+     NIJE normalno
+
+Varijansa scaling Var(X(t+k)-X(t)) vs k  (Brown: linearno, slope ≈ 1):
+  k                        Var
+  1       39,399,598,976,790.38
+  2       39,248,203,915,778.05
+  5       39,948,525,232,222.45
+  10      39,430,425,727,480.16
+  20      40,535,573,784,042.20
+  50      39,873,542,449,218.11
+  100     39,564,663,757,248.14
+  200     39,618,344,554,342.23
+  500     40,013,447,818,879.34
+  log-log slope = 0.0018   (Brown referenca: 1.000)
+
+Vreme KORAKA 2a: 0:00:03 (3.6 s)
+
+
+============================================================
+KORAK 2b: Aparat — Hurst eksponent (R/S analiza)
+============================================================
+
+  PNG:                  /1_KarlWeierstrass_v2_2b.png
+
+R/S analiza nad f(t):
+  H(f(t))     = 0.5931
+  R^2         = 0.9988
+  interpret.  = perzistentno (iznad random/Brown reference)
+
+Kontrola nad inkrementima dX(t):
+  H(dX(t))    = 0.0690
+  R^2         = 0.5986
+
+R/S tacke za f(t):
+  window            mean R/S
+  8                 2.488419
+  12                3.283059
+  18                4.260838
+  27                5.416636
+  40                6.962966
+  59                8.995733
+  86               10.780813
+  125              13.764525
+  182              16.247978
+  264              19.599990
+  383              25.497855
+  556              32.718630
+  807              40.239841
+
+Vreme KORAKA 2b: 0:00:03 (3.5 s)
+
+
+============================================================
+KORAK 2c: Aparat — Fraktalna dimenzija
+============================================================
+
+  PNG:                  /1_KarlWeierstrass_v2_2c.png
+
+Fraktalna dimenzija nad f(t):
+  Higuchi FD = 1.9988
+  R^2        = 1.0000
+  Katz FD    = 6.7256
+  interpret. = vrlo hrapavo / jako fraktalno-random ponasanje
+
+Higuchi tacke:
+  k                     L(k)          log(1/k)         log(L(k))
+  1           1,539.27941587        0.00000000        7.33906967
+  2             382.60124154       -0.69314718        5.94699330
+  3             173.63452930       -1.09861229        5.15695268
+  4              95.39087119       -1.38629436        4.55798288
+  5              62.35508055       -1.60943791        4.13284515
+  6              43.05274680       -1.79175947        3.76242603
+  7              31.54139978       -1.94591015        3.45130096
+  8              24.27250942       -2.07944154        3.18934441
+  9              19.05508351       -2.19722458        2.94733392
+  10             15.34344464       -2.30258509        2.73068832
+  11             12.76507882       -2.39789527        2.54671323
+  12             10.74840065       -2.48490665        2.37475697
+  13              9.17799066       -2.56494936        2.21680830
+  14              7.87293645       -2.63905733        2.06343111
+  15              6.86128769       -2.70805020        1.92589513
+  16              6.04318252       -2.77258872        1.79893078
+  17              5.35826469       -2.83321334        1.67864017
+  18              4.81352540       -2.89037176        1.57142975
+  19              4.28504319       -2.94443898        1.45513063
+  20              3.93194738       -2.99573227        1.36913482
+  21              3.57497204       -3.04452244        1.27395736
+  22              3.18184470       -3.09104245        1.15746112
+  23              2.90650396       -3.13549422        1.06695097
+  24              2.71165855       -3.17805383        0.99756046
+  25              2.47465742       -3.21887582        0.90610197
+  26              2.28441654       -3.25809654        0.82611065
+  27              2.15167240       -3.29583687        0.76624540
+  28              1.95056653       -3.33220451        0.66811986
+  29              1.84180802       -3.36729583        0.61074771
+  30              1.68980988       -3.40119738        0.52461603
+  31              1.64135952       -3.43398720        0.49552488
+  32              1.50877294       -3.46573590        0.41129670
+  33              1.40027604       -3.49650756        0.33666939
+  34              1.35528654       -3.52636052        0.30401290
+  35              1.27445094       -3.55534806        0.24251545
+  36              1.19998282       -3.58351894        0.18230724
+  37              1.12776993       -3.61091791        0.12024217
+  38              1.07736388       -3.63758616        0.07451721
+  39              0.99860983       -3.66356165       -0.00139113
+  40              0.95568899       -3.68887945       -0.04532275
+  41              0.91596494       -3.71357207       -0.08777719
+  42              0.86012324       -3.73766962       -0.15067960
+  43              0.83107577       -3.76120012       -0.18503431
+  44              0.79809869       -3.78418963       -0.22552302
+  45              0.76918552       -3.80666249       -0.26242309
+  46              0.73449188       -3.82864140       -0.30857633
+  47              0.70729900       -3.85014760       -0.34630179
+  48              0.66387715       -3.87120101       -0.40965816
+  49              0.65030790       -3.89182030       -0.43030933
+  50              0.61748364       -3.91202301       -0.48210270
+  51              0.59527597       -3.93182563       -0.51873016
+  52              0.58041488       -3.95124372       -0.54401212
+  53              0.55367738       -3.97029191       -0.59117311
+  54              0.53238654       -3.98898405       -0.63038547
+  55              0.50994994       -4.00733319       -0.67344272
+  56              0.49585419       -4.02535169       -0.70147337
+  57              0.47469380       -4.04305127       -0.74508532
+  58              0.45873930       -4.06044301       -0.77927320
+  59              0.44951241       -4.07753744       -0.79959182
+  60              0.43062415       -4.09434456       -0.84251961
+  61              0.42344840       -4.11087386       -0.85932362
+  62              0.39923122       -4.12713439       -0.91821452
+  63              0.39415466       -4.14313473       -0.93101190
+  64              0.37600539       -4.15888308       -0.97815181
+
+Vreme KORAKA 2c: 0:00:02 (2.8 s)
+
+
+============================================================
+KORAK 2a3a: Aparat 2a Brownovo kretanje + Test 3a Hurst eksponent
+============================================================
+
+  PNG:                  /1_KarlWeierstrass_v2_2a3a.png
+
+Hurst nad Brown aparatom:
+  H(Brown-putanja)      = 0.6294
+  R^2 Brown-putanja     = 0.9950
+  H(centrirani dX)      = 0.0690
+  R^2 centrirani dX     = 0.5986
+
+Shuffled Brown referenca:
+  runs                  = 100
+  mean H                = 1.0047
+  std H                 = 0.0098
+  z                     = -38.2584
+  p(H_shuffled >= H_obs)= 1.0000
+  interpret.            = Hurst signal ispod shuffled Brown reference
+
+R/S tacke za Brown-putanju:
+  window            mean R/S
+  8                 2.487707
+  12                3.309104
+  18                4.266305
+  27                5.408543
+  40                6.948701
+  59                8.922034
+  86               10.702108
+  125              13.790168
+  182              16.157362
+  264              20.221730
+  383              27.311276
+  556              36.244772
+  807              53.606978
+
+Vreme KORAKA 2a3a: 0:00:05 (5.4 s)
+
+
+============================================================
+KORAK 2a3b: Aparat 2a Brownovo kretanje + Test 3b Autokorelacija (ACF)
+============================================================
+
+  PNG:                  /1_KarlWeierstrass_v2_2a3b.png
+
+ACF nad centriranim Brown inkrementima:
+  max lag               = 60
+  95% band              = +/-0.028827
+  max |ACF|             = 0.501893
+  znacajnih lagova      = 9/60
+  Ljung-Box h           = 20
+  Ljung-Box Q           = 1187.837821
+  Ljung-Box p           = 0.000000
+
+Shuffled max |ACF| referenca:
+  runs                  = 200
+  mean                  = 0.037317
+  std                   = 0.005234
+  z                     = 88.765007
+  p(shuffled >= obs)    = 0.000000
+  interpret.            = postoji ACF signal iznad Brown/white-noise reference
+
+Top 10 ACF lagova po apsolutnoj vrednosti:
+  lag                  ACF
+  1            -0.50189288
+  31           -0.04250304
+  3            -0.04044771
+  30            0.03831310
+  4             0.03794345
+  48            0.03452532
+  27           -0.03058343
+  28            0.03053346
+  33            0.02894293
+  22            0.02768463
+
+Vreme KORAKA 2a3b: 0:00:01 (1.9 s)
+
+
+============================================================
+KORAK 2a3c: Aparat 2a Brownovo kretanje + Test 3c Mutual Information
+============================================================
+
+  PNG:                  /1_KarlWeierstrass_v2_2a3c.png
+
+Mutual Information nad centriranim Brown inkrementima:
+  max lag               = 60
+  bins                  = 16
+  max MI                = 0.26369680 bits
+  max MI lag            = 1
+
+Shuffled max MI referenca:
+  runs                  = 200
+  mean                  = 0.04400159
+  std                   = 0.00186236
+  z                     = 117.96616578
+  p(shuffled >= obs)    = 0.00000000
+  interpret.            = postoji MI signal iznad shuffled Brown reference
+
+Top 10 MI lagova:
+  lag            MI [bits]
+  1             0.26369680
+  18            0.04664867
+  52            0.04522129
+  45            0.04478672
+  2             0.04417223
+  55            0.04300646
+  29            0.04102786
+  58            0.04095282
+  25            0.04000016
+  56            0.03984017
+
+Vreme KORAKA 2a3c: 0:00:02 (2.4 s)
+
+
+============================================================
+KORAK 2a3d: Aparat 2a Brownovo kretanje + Test 3d Sample / Permutation entropy
+============================================================
+
+  PNG:                  /1_KarlWeierstrass_v2_2a3d.png
+
+Sample entropy:
+  m                     = 2
+  r                     = 0.2
+  n used                = 1200
+  SampEn(dX)            = 2.21166005
+  SampEn(Brown-putanja) = 2.14180004
+  A count               = 917
+  B count               = 8373
+
+Permutation entropy:
+  order            PE bits         PE norm      patterns       max
+  3             2.57159803      0.99482992             6         6
+  4             4.51437878      0.98460539            24        24
+  5             6.71984810      0.97291943           120       120
+
+Shuffled entropy referenca:
+  runs                  = 100
+  SampEn mean           = 2.22787025
+  SampEn std            = 0.03166193
+  SampEn z              = -0.51197783
+  SampEn p_low          = 0.31000000
+  PE4 mean              = 0.99934523
+  PE4 std               = 0.00022582
+  PE4 z                 = -65.27324290
+  PE4 p_low             = 0.00000000
+  interpret.            = entropija je niza od shuffled Brown reference (moguca struktura)
+
+Vreme KORAKA 2a3d: 0:00:06 (6.1 s)
+
+
+============================================================
+KORAK 2a3e: Aparat 2a Brownovo kretanje + Test 3e NIST baterija
+============================================================
+
+  PNG:                  /1_KarlWeierstrass_v2_2a3e.png
+
+Binarizacija Brown inkremenata:
+  bit = 1 ako je centrirani dX iznad medijane, inace 0
+  n bits                = 4623
+  zeros                 = 2312
+  ones                  = 2311
+
+NIST-style testovi (prolaz ako p > 0.05):
+  test                         p-value              stat      pass
+  Monobit frequency         0.98826556        0.01470747      True
+  Runs                      0.00000000    3,087.00000000     False
+  Block frequency           0.99999728        9.50000000      True
+  Cumulative sums           0.68047925       28.00000000      True
+  Approx entropy            0.00000000        0.62978577     False
+
+Detalji:
+  Runs pi               = 0.49989185
+  Block count           = 36
+  Approx entropy m      = 2
+  Approx entropy chi2   = 585.83963576
+  Approx entropy df     = 2
+  pass count            = 3/5
+  interpret.            = vise NIST-style testova pada (moguća struktura / odstupanje)
+
+Vreme KORAKA 2a3e: 0:00:02 (2.0 s)
+
+
+============================================================
+KORAK 2b3a: Aparat 2b Hurst/R-S + Test 3a Hurst eksponent
+============================================================
+
+  PNG:                  /1_KarlWeierstrass_v2_2b3a.png
+
+Globalni Hurst nad f(t):
+  H(f(t))               = 0.59306018
+  R^2                   = 0.99877996
+
+Rolling/local Hurst:
+  window                = 768
+  step                  = 128
+  broj prozora          = 31
+  mean H                = 0.59744976
+  std H                 = 0.02523894
+  min H                 = 0.54938116
+  max H                 = 0.64664744
+  persistent H>0.55     = 30/31
+  anti H<0.45           = 0/31
+
+Shuffled Hurst referenca:
+  runs                  = 100
+  mean                  = 0.56421629
+  std                   = 0.01728079
+  z                     = 1.66912981
+  p_high                = 0.03000000
+  p_low                 = 0.97000000
+  interpret.            = globalni H je iznad shuffled reference
+
+Rolling H tacke:
+  center                   H             R^2
+  385             0.57764101      0.97802319
+  513             0.55886327      0.98311079
+  641             0.55301991      0.98932761
+  769             0.58038657      0.99226626
+  897             0.54938116      0.98073889
+  1025            0.58130666      0.99239465
+  1153            0.56565104      0.99107554
+  1281            0.57931098      0.99426878
+  1409            0.61905217      0.99684553
+  1537            0.60052342      0.99649088
+  1665            0.56734156      0.99625997
+  1793            0.60723249      0.99646099
+  1921            0.61394088      0.99813333
+  2049            0.58518358      0.99605077
+  2177            0.60036376      0.99592355
+  2305            0.58142144      0.99534930
+  2433            0.62024653      0.99386274
+  2561            0.62590310      0.99733313
+  2689            0.64631393      0.99568070
+  2817            0.59744699      0.99708909
+  2945            0.60268268      0.99546932
+  3073            0.62044000      0.99305673
+  3201            0.58626997      0.99217544
+  3329            0.58173509      0.99686666
+  3457            0.60114300      0.99743621
+  3585            0.61228898      0.99681286
+  3713            0.60348408      0.99380151
+  3841            0.62518803      0.99846151
+  3969            0.64664744      0.99869685
+  4097            0.60671247      0.99468461
+  4225            0.62382045      0.99842733
+
+Vreme KORAKA 2b3a: 0:00:05 (5.2 s)
+
+
+============================================================
+KORAK 2b3b: Aparat 2b Hurst/R-S + Test 3b Autokorelacija (ACF)
+============================================================
+
+  PNG:                  /1_KarlWeierstrass_v2_2b3b.png
+
+ACF nad rolling/local Hurst nizom:
+  broj rolling H tacaka = 31
+  max lag               = 20
+  95% band              = +/-0.352026
+  max |ACF|             = 0.477127
+  znacajnih lagova      = 1/20
+  Ljung-Box h           = 10
+  Ljung-Box Q           = 21.933953
+  Ljung-Box p           = 0.015445
+
+Shuffled rolling H max |ACF| referenca:
+  runs                  = 500
+  mean                  = 0.310141
+  std                   = 0.073827
+  z                     = 2.261849
+  p(shuffled >= obs)    = 0.028000
+  interpret.            = rolling H ima ACF signal iznad shuffled reference
+
+Top ACF lagovi rolling H po apsolutnoj vrednosti:
+  lag                  ACF
+  1             0.47712746
+  2             0.34572217
+  3             0.33876565
+  9             0.24965832
+  15           -0.23706341
+  4             0.19860238
+  14           -0.19729434
+  17           -0.16827067
+  10            0.15416978
+  16           -0.14196553
+
+Vreme KORAKA 2b3b: 0:00:01 (1.1 s)
+
+
+============================================================
+KORAK 2b3c: Aparat 2b Hurst/R-S + Test 3c Mutual Information
+============================================================
+
+  PNG:                  /1_KarlWeierstrass_v2_2b3c.png
+
+Mutual Information nad rolling/local Hurst nizom:
+  broj rolling H tacaka = 31
+  max lag               = 12
+  bins                  = 7
+  max MI                = 1.35702484 bits
+  max MI lag            = 5
+
+Shuffled rolling H max MI referenca:
+  runs                  = 500
+  mean                  = 1.50605599
+  std                   = 0.11330386
+  z                     = -1.31532278
+  p(shuffled >= obs)    = 0.92200000
+  interpret.            = rolling H nema jak MI signal iznad shuffled reference
+
+Top MI lagovi rolling H:
+  lag            MI [bits]
+  5             1.35702484
+  1             1.26378010
+  10            1.21474333
+  2             1.20459007
+  3             1.18385093
+  8             1.18317407
+  4             1.12717132
+  9             1.11471303
+  6             1.05650921
+  12            0.90666733
+
+Vreme KORAKA 2b3c: 0:00:00 (0.9 s)
+
+
+============================================================
+KORAK 2b3d: Aparat 2b Hurst/R-S + Test 3d Sample / Permutation entropy
+============================================================
+
+  PNG:                  /1_KarlWeierstrass_v2_2b3d.png
+
+Sample entropy rolling/local Hurst niza:
+  m                     = 2
+  r                     = 0.35
+  n used                = 31
+  SampEn(rolling H)     = 2.56494936
+  SampEn(f(t) kontrola) = 2.19544343
+  A count               = 1
+  B count               = 13
+
+Permutation entropy rolling H:
+  order            PE bits         PE norm      patterns       max
+  3             2.50691860      0.96980850             6         6
+  4             3.99468037      0.87125693            18        24
+  5             4.53266528      0.65625265            24       120
+
+Shuffled entropy referenca:
+  runs                  = 500
+  SampEn finite runs    = 449
+  SampEn mean           = 1.84682605
+  SampEn std            = 0.50959998
+  SampEn z              = 1.40919022
+  SampEn p_low          = 0.90423163
+  PE4 mean              = 0.85977147
+  PE4 std               = 0.03917736
+  PE4 z                 = 0.29316594
+  PE4 p_low             = 0.58800000
+  interpret.            = entropy rolling H je blizu shuffled reference
+
+Vreme KORAKA 2b3d: 0:00:01 (1.3 s)
+
+
+============================================================
+KORAK 2b3e: Aparat 2b Hurst/R-S + Test 3e NIST baterija
+============================================================
+
+  PNG:                  /1_KarlWeierstrass_v2_2b3e.png
+
+Binarizacija rolling/local Hurst niza:
+  bit = 1 ako je lokalni H > 0.5, inace 0
+  n bits                = 31
+  zeros                 = 0
+  ones                  = 31
+
+NIST-style testovi nad rolling H bitovima (prolaz ako p > 0.05):
+  test                         p-value              stat      pass
+  Monobit frequency         0.00000003        5.56776436     False
+  Runs                      0.00000000        0.00000000     False
+  Block frequency           0.00002498       24.00000000     False
+  Cumulative sums           0.00000003       31.00000000     False
+  Approx entropy            0.00000000        0.00000000     False
+
+Detalji rolling H:
+  Runs pi               = 1.00000000
+  Block size            = 8
+  Block count           = 3
+  Approx entropy m      = 2
+  Approx entropy chi2   = 42.97512519
+  Approx entropy df     = 2
+  pass count            = 0/5
+  interpret.            = rolling H bitovi padaju vise NIST-style testova
+
+Kontrola: NIST-style testovi nad f(t) binarizacijom:
+  test                         p-value              stat      pass
+  Monobit frequency         1.00000000        0.00000000      True
+  Runs                      0.37758598    2,342.00000000      True
+  Block frequency           0.15033446       44.75000000      True
+  Cumulative sums           0.26371776       76.00000000      True
+  Approx entropy            0.01883451        0.69228817     False
+  pass count            = 4/5
+  f(t) runs pi          = 0.50000000
+  f(t) block count      = 36
+  f(t) approx chi2      = 7.94412940
+  f(t) approx df        = 2
+
+Vreme KORAKA 2b3e: 0:00:00 (1.0 s)
+
+============================================================
+KORAK 2c3a: Aparat 2c Fraktalna dimenzija + Test 3a Hurst eksponent
+============================================================
+
+  PNG:                  /1_KarlWeierstrass_v2_2c3a.png
+
+Globalna veza FD i Hurst-a:
+  Higuchi FD(f(t))      = 1.99883004
+  Higuchi R^2           = 0.99997507
+  H(f(t))               = 0.59306018
+  2 - H                 = 1.40693982
+  FD - (2-H)            = 0.59189021
+
+Rolling/local FD prema rolling H:
+  window                = 768
+  step                  = 128
+  broj prozora          = 31
+  mean FD               = 1.99750412
+  std FD                = 0.00279157
+  mean gap FD-(2-H)     = 0.59495389
+  std gap FD-(2-H)      = 0.02415382
+  corr(FD,H)            = -0.43565960
+
+Shuffled FD referenca:
+  runs                  = 100
+  mean                  = 2.00005062
+  std                   = 0.00110196
+  z                     = -1.10763961
+  p_high                = 0.85000000
+  p_low                 = 0.15000000
+  interpret.            = globalni FD nije jak odmak od shuffled reference
+
+Rolling FD tacke:
+  center                  FD             R^2             2-H             gap
+  385             1.99559916      0.99983729      1.42235899      0.57324017
+  513             1.99905907      0.99980909      1.44113673      0.55792234
+  641             1.99842841      0.99984022      1.44698009      0.55144832
+  769             1.99830630      0.99979395      1.41961343      0.57869287
+  897             1.99644542      0.99984888      1.45061884      0.54582658
+  1025            1.99985292      0.99983095      1.41869334      0.58115958
+  1153            1.99914337      0.99989659      1.43434896      0.56479441
+  1281            1.99568797      0.99984548      1.42068902      0.57499896
+  1409            1.99640063      0.99980312      1.38094783      0.61545280
+  1537            1.99596566      0.99985839      1.39947658      0.59648908
+  1665            1.99884925      0.99985226      1.43265844      0.56619082
+  1793            1.99506305      0.99984093      1.39276751      0.60229554
+  1921            1.99913036      0.99982244      1.38605912      0.61307124
+  2049            1.99762626      0.99982472      1.41481642      0.58280984
+  2177            1.99555017      0.99986828      1.39963624      0.59591393
+  2305            1.99884334      0.99985534      1.41857856      0.58026478
+  2433            1.99142627      0.99985797      1.37975347      0.61167281
+  2561            1.99453705      0.99986207      1.37409690      0.62044015
+  2689            1.99173477      0.99984438      1.35368607      0.63804870
+  2817            2.00024312      0.99986297      1.40255301      0.59769011
+  2945            2.00148636      0.99980121      1.39731732      0.60416904
+  3073            2.00009634      0.99982547      1.37956000      0.62053634
+  3201            2.00373393      0.99981902      1.41373003      0.59000390
+  3329            2.00118285      0.99978706      1.41826491      0.58291794
+  3457            2.00042288      0.99982889      1.39885700      0.60156588
+  3585            1.99544087      0.99982222      1.38771102      0.60772985
+  3713            1.99629113      0.99983313      1.39651592      0.59977521
+  3841            1.99473362      0.99986046      1.37481197      0.61992165
+  3969            1.99481832      0.99984559      1.35335256      0.64146576
+  4097            1.99720429      0.99986171      1.39328753      0.60391677
+  4225            1.99932467      0.99986369      1.37617955      0.62314513
+
+Vreme KORAKA 2c3a: 0:00:04 (4.2 s)
+
+
+============================================================
+KORAK 2c3b: Aparat 2c Fraktalna dimenzija + Test 3b Autokorelacija (ACF)
+============================================================
+
+  PNG:                  /1_KarlWeierstrass_v2_2c3b.png
+
+ACF nad rolling/local FD nizom:
+  broj rolling FD tacaka = 31
+  max lag               = 20
+  95% band              = +/-0.352026
+  max |ACF|             = 0.525746
+  znacajnih lagova      = 2/20
+  Ljung-Box h           = 10
+  Ljung-Box Q           = 30.445997
+  Ljung-Box p           = 0.000724
+
+Shuffled rolling FD max |ACF| referenca:
+  runs                  = 500
+  mean                  = 0.311894
+  std                   = 0.074047
+  z                     = 2.888028
+  p(shuffled >= obs)    = 0.014000
+  interpret.            = rolling FD ima ACF signal iznad shuffled reference
+
+Top ACF lagovi rolling FD po apsolutnoj vrednosti:
+  lag                  ACF
+  6            -0.52574555
+  5            -0.35629428
+  1             0.33475809
+  4            -0.30766762
+  2             0.26434933
+  9             0.20826049
+  13           -0.17087718
+  18            0.15940696
+  10            0.15695995
+  15           -0.12899627
+
+Vreme KORAKA 2c3b: 0:00:00 (1.0 s)
+
+
+============================================================
+KORAK 2c3c: Aparat 2c Fraktalna dimenzija + Test 3c Mutual Information
+============================================================
+
+  PNG:                  /1_KarlWeierstrass_v2_2c3c.png
+
+Mutual Information nad rolling/local FD nizom:
+  broj rolling FD tacaka = 31
+  max lag               = 12
+  bins                  = 7
+  max MI                = 1.51232800 bits
+  max MI lag            = 8
+
+Shuffled rolling FD max MI referenca:
+  runs                  = 500
+  mean                  = 1.50124825
+  std                   = 0.10682069
+  z                     = 0.10372294
+  p(shuffled >= obs)    = 0.44000000
+  interpret.            = rolling FD nema jak MI signal iznad shuffled reference
+
+Top MI lagovi rolling FD:
+  lag            MI [bits]
+  8             1.51232800
+  9             1.41426260
+  1             1.41012542
+  11            1.40998655
+  10            1.39261654
+  3             1.33972692
+  12            1.32771996
+  5             1.24472928
+  6             1.22952633
+  4             1.17698532
+
+Vreme KORAKA 2c3c: 0:00:01 (1.1 s)
+
+
+============================================================
+KORAK 2c3d: Aparat 2c Fraktalna dimenzija + Test 3d Sample / Permutation entropy
+============================================================
+
+  PNG:                  /1_KarlWeierstrass_v2_2c3d.png
+
+Sample entropy rolling/local FD niza:
+  m                     = 2
+  r                     = 0.35
+  n used                = 31
+  SampEn(rolling FD)    = 1.94591015
+  SampEn(f(t) kontrola) = 2.19544343
+  A count               = 3
+  B count               = 21
+
+Permutation entropy rolling FD:
+  order            PE bits         PE norm      patterns       max
+  3             2.53783574      0.98176888             6         6
+  4             4.06610894      0.88683581            18        24
+  5             4.60673935      0.66697732            25       120
+
+Shuffled entropy referenca:
+  runs                  = 500
+  SampEn finite runs    = 487
+  SampEn mean           = 1.80307078
+  SampEn std            = 0.50877356
+  SampEn z              = 0.28075234
+  SampEn p_low          = 0.67967146
+  PE4 mean              = 0.85922089
+  PE4 std               = 0.03821589
+  PE4 z                 = 0.72260299
+  PE4 p_low             = 0.79000000
+  interpret.            = entropy rolling FD je blizu shuffled reference
+
+Vreme KORAKA 2c3d: 0:00:01 (1.5 s)
+
+
+============================================================
+KORAK 2c3e: Aparat 2c Fraktalna dimenzija + Test 3e NIST baterija
+============================================================
+
+  PNG:                  /1_KarlWeierstrass_v2_2c3e.png
+
+Binarizacija rolling/local FD niza:
+  bit = 1 ako je lokalni FD > medijana rolling FD niza, inace 0
+  threshold             = 1.99762626
+  n bits                = 31
+  zeros                 = 16
+  ones                  = 15
+
+NIST-style testovi nad rolling FD bitovima (prolaz ako p > 0.05):
+  test                         p-value              stat      pass
+  Monobit frequency         0.85746244        0.17960530      True
+  Runs                      0.59363394       14.00000000      True
+  Block frequency           0.68227033        1.50000000      True
+  Cumulative sums           0.59001389        3.00000000      True
+  Approx entropy            0.63655208        0.67857657      True
+
+Detalji rolling FD:
+  Runs pi               = 0.48387097
+  Block size            = 8
+  Block count           = 3
+  Approx entropy m      = 2
+  Approx entropy chi2   = 0.90337807
+  Approx entropy df     = 2
+  pass count            = 5/5
+  interpret.            = rolling FD bitovi prolaze sve NIST-style testove
+
+Kontrola: NIST-style testovi nad f(t) binarizacijom:
+  test                         p-value              stat      pass
+  Monobit frequency         1.00000000        0.00000000      True
+  Runs                      0.37758598    2,342.00000000      True
+  Block frequency           0.15033446       44.75000000      True
+  Cumulative sums           0.26371776       76.00000000      True
+  Approx entropy            0.01883451        0.69228817     False
+  pass count            = 4/5
+  f(t) runs pi          = 0.50000000
+  f(t) block count      = 36
+  f(t) approx chi2      = 7.94412940
+  f(t) approx df        = 2
+
+Vreme KORAKA 2c3e: 0:00:15 (15.5 s)
+
+
+
+============================================================
+ANALIZA
+============================================================
+
+Napomena:
+  POGODNO znaci: rezultat daje merljiv signal koji moze da udje u sledeci
+  prediktivni model kao feature / filter / tezina.
+  NIJE POGODNO znaci: test je vise dijagnosticki ili je signal preslab,
+  nestabilan, trivijalan ili previse blizu shuffled/random reference.
+
+Tabela 15 modela (aparati 2a/2b/2c x testovi 3a/3b/3c/3d/3e):
+
+| Model | Aparat | Test | Prednosti | Mane | Analiza | Zakljucak |
+|---|---|---|---|---|---|---|
+| 2a3a | Brownovo kretanje | Hurst | Brown-putanja ima H=0.6294 i dobar R2=0.9950 | Shuffled Brown H je mnogo visi; H(dX)=0.0690 slab fit | Nije potvrda klasicnog Browna; vise pokazuje da putanja nije standardna Brown referenca | NIJE POGODNO |
+| 2a3b | Brownovo kretanje | ACF | Jak lag-1 signal: max abs ACF=0.5019; Ljung-Box p=0; shuffled p=0 | Signal je dominantno lokalni i linearan; moze biti posledica lex-rank geometrije | Najjaci Brown test za praktican feature: prethodni inkrement/lag-1 nosi informaciju | POGODNO |
+| 2a3c | Brownovo kretanje | Mutual information | Jak MI na lag=1: 0.2637 bits; shuffled p=0 | MI opada posle lag-1; zavisi od binovanja | Potvrdjuje nelinearnu/linearno-neuhvatljivu vezu inkremenata; koristan signal za model | POGODNO |
+| 2a3d | Brownovo kretanje | Sample / permutation entropy | PE4 je znatno niza od shuffled reference; p_low=0 | SampEn nije znacajno nizi; deo signala dolazi iz ordinalnog obrasca | Entropija pokazuje red u redosledu inkremenata; pogodno kao dodatni skor/feature | POGODNO |
+| 2a3e | Brownovo kretanje | NIST baterija | Runs i ApproxEntropy padaju; 3/5 prolaz | Monobit i block prolaze; test radi nad binarnim znakom, gubi amplitudu | Binarni niz inkremenata nije potpuno random; koristan za detekciju rezima, ne samostalno | POGODNO |
+| 2b3a | Hurst/R-S | Hurst | H(f)=0.5931; rolling H mean=0.5974; 30/31 prozora H>0.55; shuffled p_high=0.03 | Efekat je umeren; R/S moze preceniti memoriju kod konacnih nizova | Najbolji dokaz perzistentnog rezima u f(t); dobar kandidat za trend/regime feature | POGODNO |
+| 2b3b | Hurst/R-S | ACF | Rolling H ima ACF signal; Ljung-Box p=0.0154; shuffled p=0.028 | Samo 31 rolling tacaka; mali uzorak za ACF | Lokalni H rezimi se grupisu kroz vreme; korisno za rezimsku predikciju | POGODNO |
+| 2b3c | Hurst/R-S | Mutual information | MI rolling H je visok nominalno | Shuffled referenca je jos visa; p=0.922 | MI rolling H nije iznad randomizovane reference; nema dodatnu prediktivnu vrednost | NIJE POGODNO |
+| 2b3d | Hurst/R-S | Sample / permutation entropy | Entropije su izmerene i stabilne | Shuffled reference ne potvrdjuju odmak; PE4 p_low=0.588 | Kompleksnost rolling H nije posebna u odnosu na shuffled; dijagnosticki, ne prediktivno | NIJE POGODNO |
+| 2b3e | Hurst/R-S | NIST baterija | Rolling H bitovi padaju 5/5 testova; svi prozori H>0.5 | Signal je skoro trivijalan jer zeros=0, ones=31 | Jako pokazuje perzistentan rezim, ali kao binarni test je pregrub; ipak koristan kao rezimski filter | POGODNO |
+| 2c3a | Fraktalna dimenzija | Hurst | Rolling FD uporedjen sa 2-H; corr(FD,H)=-0.4357 | Globalni FD=1.9988 je skoro shuffled; p_high=0.85 | FD je ekstremno hrapav skoro kao random; H veza ne daje stabilan prediktivni signal | NIJE POGODNO |
+| 2c3b | Fraktalna dimenzija | ACF | Rolling FD ima ACF signal; Ljung-Box p=0.000724; shuffled p=0.014 | FD vrednosti su veoma zbijene oko ~2; mala dinamika | Lokalna hrapavost ima memoriju; moze biti pomocni rezimski feature | POGODNO |
+| 2c3c | Fraktalna dimenzija | Mutual information | MI rolling FD postoji nominalno | Shuffled p=0.44; nije iznad reference | Nema dokaz dodatne nelinearne informacije u FD rezimu | NIJE POGODNO |
+| 2c3d | Fraktalna dimenzija | Sample / permutation entropy | Entropije su uredno izmerene | Shuffled p vrednosti nisu znacajne; PE4 p_low=0.79 | Entropija rolling FD je blizu shuffled reference; nema prediktivni signal | NIJE POGODNO |
+| 2c3e | Fraktalna dimenzija | NIST baterija | Rolling FD bitovi prolaze 5/5 testova | Prolazak NIST-a znaci nasumicnost, ne strukturu | FD binarni rezim izgleda random; nije dobar za predikciju sledece kombinacije | NIJE POGODNO |
+
+Kratak zakljucak:
+  POGODNO za sledecu fazu predikcije (8/15):
+    1) 2a3b - Brown inkrementi + ACF
+    2) 2a3c - Brown inkrementi + Mutual information
+    3) 2a3d - Brown inkrementi + sample/permutation entropy
+    4) 2a3e - Brown inkrementi + NIST baterija
+    5) 2b3a - Hurst/R-S globalni i rolling H
+    6) 2b3b - ACF rolling H rezima
+    7) 2b3e - NIST rolling H rezima
+    8) 2c3b - rolling FD ACF kao pomocni rezimski signal
+
+  NIJE POGODNO za predikciju sledece kombinacije (7/15):
+    1) 2a3a - Brown + Hurst: ne potvrdjuje standardni Brown signal
+    2) 2b3c - Hurst + MI: nije iznad shuffled reference
+    3) 2b3d - Hurst + entropy: blizu shuffled reference
+    4) 2c3a - FD + Hurst: globalni FD skoro kao shuffled
+    5) 2c3c - FD + MI: nije iznad shuffled reference
+    6) 2c3d - FD + entropy: blizu shuffled reference
+    7) 2c3e - FD + NIST: prolazi NIST, tj. izgleda random
+
+  Operativno:
+    Za sledeci prediktivni model ne treba koristiti sve jednako.
+    Osnovu treba graditi iz Brown inkremenata (lag/ACF/MI) + Hurst rezima,
+    a fraktalnu dimenziju koristiti samo tamo gde pokazuje lokalnu ACF memoriju.
