@@ -1,3 +1,10 @@
+Moj doktorski rad: 
+- visoka nauka 
+- teska matematika 
+- briljantno programiranje
+
+
+
 KarlWeierstrass algorithm for Loto 7/39 — v2
 ============================================================
 
