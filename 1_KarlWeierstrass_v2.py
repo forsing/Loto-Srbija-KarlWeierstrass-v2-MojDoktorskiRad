@@ -171,8 +171,8 @@ from scipy import stats
 
 T0 = time.time()
 
-CSV_DRAWS = "/Users/4c/Desktop/GHQ/data/loto7_4624_k43.csv"
-CSV_ALL_COMBOS = "/Users/4c/Desktop/GHQ/data/kombinacije_39C7.csv"
+CSV_DRAWS = "/data/loto7_4624_k43.csv"
+CSV_ALL_COMBOS = "/data/kombinacije_39C7.csv"
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 PNG_PATH = os.path.join(HERE, "1_KarlWeierstrass_v2_1.png")
