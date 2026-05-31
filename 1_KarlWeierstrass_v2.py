@@ -7,6 +7,7 @@ Moj doktorski rad LOTO 7/39 predikcije:
 
 
 
+
 """
 Karl Weierstrass algorithm for Loto 7/39 prediction — v2
 
